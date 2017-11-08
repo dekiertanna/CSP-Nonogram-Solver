@@ -1,0 +1,7 @@
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\bin\Debug\NonogramSolver.exe.config
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\bin\Debug\NonogramSolver.exe
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\bin\Debug\NonogramSolver.pdb
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\obj\Debug\NonogramSolver.csprojResolveAssemblyReference.cache
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\obj\Debug\NonogramSolver.csproj.CoreCompileInputs.cache
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\obj\Debug\NonogramSolver.exe
+D:\Users\Anna\Documents\GitHub\CSP-Nonogram-Solver\NonogramSolver\obj\Debug\NonogramSolver.pdb
