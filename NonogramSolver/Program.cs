@@ -12,7 +12,7 @@ namespace NonogramSolver
         {
             string line;
 
-            System.IO.StreamReader file = new System.IO.StreamReader("picture.txt");
+            System.IO.StreamReader file = new System.IO.StreamReader("picture2.txt");
 
             int numOfRows = Convert.ToInt32(file.ReadLine());
             int numOfCols = Convert.ToInt32(file.ReadLine());
@@ -24,7 +24,7 @@ namespace NonogramSolver
             {
                 line = file.ReadLine();
                 List<int> clues = new List<int>(Array.ConvertAll(line.Split(';'), int.Parse));
-                Line l = new Line(clues, numOfCols);
+                Line l = new Line(clues, numOfCols,LineType.row,i);
                 rows.Add(l);
 
             }
@@ -33,7 +33,7 @@ namespace NonogramSolver
             {
                 line = file.ReadLine();
                 List<int> clues = new List<int>(Array.ConvertAll(line.Split(';'), int.Parse));
-                Line l = new Line(clues, numOfRows);
+                Line l = new Line(clues, numOfRows,LineType.col,i);
                 columns.Add(l);
 
             }
@@ -91,18 +91,97 @@ namespace NonogramSolver
                     }
                 }
             }
-            
-            bool allAssigned(Grid grid)
+
+            List<Line> variables = new List<Line>();
+            List<Line> assignment = new List<Line>();
+
+            foreach(Line l in grid.rows)
             {
-                foreach()
+                variables.Add(l);
+            }
+            foreach (Line l in grid.columns)
+            {
+                variables.Add(l);
             }
 
-            void backtrack(int level, Grid grid)
+            bool backtrack(List<Line> a,List<Line> v)
             {
+                
+                if (a.Count == grid.numOfCols + grid.numOfRows)
+                {
+                    return true;
+                }
+                Line x = v[0];
+                v.Remove(x);
+                foreach(List<bool> value in x.possibleSolutions)
+                {
+                    bool consistent = true;
+                    if(x.lineType == LineType.row)
+                    {
+                        foreach(Line l in a.Where(n=> n.lineType == LineType.col))
+                        {
+                            foreach (bool field in value)
+                            {
+                                if (field == l.currentSolution[x.index])
+                                {
+                                    consistent = true;
+                                }
+                                else
+                                    consistent = false;
+                            }
+                        }
+                    }
+                    if (x.lineType == LineType.col)
+                    {
+                        foreach (Line l in a.Where(n => n.lineType == LineType.row))
+                        {
+                            if (consistent == false)
+                                break;
+                            foreach (bool field in value)
+                            {
+                                if (consistent == false)
+                                    break;
+                                if (field == l.currentSolution[x.index])
+                                {
+                                    consistent = true;
+                                }
+                                else
+                                {
+                                    consistent = false;
+                                }
+                            }
+                        }
+                    }
 
+                    if(consistent)
+                    {
+                        x.currentSolution = value;
+                        a.Add(x);
+                        backtrack(a, v);
+                        foreach(Line l in a.Where(n=> n.index == x.index))
+                        {
+                            l.possibleSolutions.Remove(value);
+                            break;
+                        }
+                    }
+                }
+                return false;
             }
-            
-
+            bool success = backtrack(assignment, variables);
+            foreach(Line l in assignment)
+            {
+                List<bool> lb = l.currentSolution;
+                foreach(bool b in lb)
+                {
+                    if (b)
+                    {
+                        Console.Write("#");
+                    }
+                    else
+                        Console.Write("-");
+                }
+                Console.WriteLine();
+            }
          
         }
 
