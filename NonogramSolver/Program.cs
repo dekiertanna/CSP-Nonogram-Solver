@@ -12,7 +12,7 @@ namespace NonogramSolver
         {
             string line;
 
-            System.IO.StreamReader file = new System.IO.StreamReader("picture2.txt");
+            System.IO.StreamReader file = new System.IO.StreamReader("picture.txt");
 
             int numOfRows = Convert.ToInt32(file.ReadLine());
             int numOfCols = Convert.ToInt32(file.ReadLine());
@@ -24,7 +24,7 @@ namespace NonogramSolver
             {
                 line = file.ReadLine();
                 List<int> clues = new List<int>(Array.ConvertAll(line.Split(';'), int.Parse));
-                Line l = new Line(clues, numOfCols,LineType.row,i);
+                Line l = new Line(clues, numOfCols, LineType.row, i);
                 rows.Add(l);
 
             }
@@ -33,27 +33,27 @@ namespace NonogramSolver
             {
                 line = file.ReadLine();
                 List<int> clues = new List<int>(Array.ConvertAll(line.Split(';'), int.Parse));
-                Line l = new Line(clues, numOfRows,LineType.col,i);
+                Line l = new Line(clues, numOfRows, LineType.col, i);
                 columns.Add(l);
 
             }
 
             Grid grid = new Grid(numOfRows, numOfCols, rows, columns);
-            
-            foreach(Line row in grid.rows)
+
+            foreach (Line row in grid.rows)
             {
                 ruleSolver(row.clues, row.length, row.possibleSolutions);
             }
-            foreach(Line column in grid.columns)
+            foreach (Line column in grid.columns)
             {
                 ruleSolver(column.clues, column.length, column.possibleSolutions);
             }
 
-            void ruleSolver(List<int> rules,int rowSize, List<List<bool>> possibilities)
+            void ruleSolver(List<int> rules, int rowSize, List<List<bool>> possibilities)
             {
                 List<bool> possibility = new List<bool>();
                 List<int> ruleCounts = new List<int>(rules);
-                for(int i =0;i<rowSize;i++)
+                for (int i = 0; i < rowSize; i++)
                 {
                     possibility.Add(false);
                 }
@@ -62,32 +62,32 @@ namespace NonogramSolver
 
             void collectPossibleLayouts(List<bool> possibility, int startingOffset, List<int> ruleCounts, List<List<bool>> possibilities)
             {
-                if(ruleCounts.Count==0)
+                if (ruleCounts.Count == 0)
                 {
                     possibilities.Add(possibility);
                     return;
                 }
 
                 int firstCount = ruleCounts[0];
-                List<int> remainingCounts = ruleCounts.GetRange(1, ruleCounts.Count-1);
-                for(int offset = startingOffset;offset<=possibility.Count-firstCount;offset++)
+                List<int> remainingCounts = ruleCounts.GetRange(1, ruleCounts.Count - 1);
+                for (int offset = startingOffset; offset <= possibility.Count - firstCount; offset++)
                 {
                     List<bool> possibilityCopy = new List<bool>(possibility);
 
-                    for(int i =0; i<firstCount;i++)
+                    for (int i = 0; i < firstCount; i++)
                     {
-                        possibilityCopy[offset+i] = true;
-                        
+                        possibilityCopy[offset + i] = true;
+
                     }
 
-                    if(remainingCounts.Count ==0)
+                    if (remainingCounts.Count == 0)
                     {
                         possibilities.Add(possibilityCopy);
                     }
                     else
                     {
                         int newStartingOffset = offset + firstCount + 1;
-                        collectPossibleLayouts(possibilityCopy, newStartingOffset, remainingCounts,possibilities);
+                        collectPossibleLayouts(possibilityCopy, newStartingOffset, remainingCounts, possibilities);
                     }
                 }
             }
@@ -95,7 +95,7 @@ namespace NonogramSolver
             List<Line> variables = new List<Line>();
             List<Line> assignment = new List<Line>();
 
-            foreach(Line l in grid.rows)
+            foreach (Line l in grid.rows)
             {
                 variables.Add(l);
             }
@@ -104,85 +104,85 @@ namespace NonogramSolver
                 variables.Add(l);
             }
 
-            bool backtrack(List<Line> a,List<Line> v)
+
+            bool valid(LineType lt, int index, List<bool> possibleSolution, List<Line> solution)
             {
-                
-                if (a.Count == grid.numOfCols + grid.numOfRows)
+                for (int i = 0; i < solution.Count; i++)
                 {
-                    return true;
-                }
-                Line x = v[0];
-                v.Remove(x);
-                foreach(List<bool> value in x.possibleSolutions)
-                {
-                    bool consistent = true;
-                    if(x.lineType == LineType.row)
+                    Line temp = solution[i];
+                    if (temp.lineType != lt)
                     {
-                        foreach(Line l in a.Where(n=> n.lineType == LineType.col))
+
+                        if (temp.currentSolution[index] != possibleSolution[temp.index])
                         {
-                            foreach (bool field in value)
-                            {
-                                if (field == l.currentSolution[x.index])
-                                {
-                                    consistent = true;
-                                }
-                                else
-                                    consistent = false;
-                            }
-                        }
-                    }
-                    if (x.lineType == LineType.col)
-                    {
-                        foreach (Line l in a.Where(n => n.lineType == LineType.row))
-                        {
-                            if (consistent == false)
-                                break;
-                            foreach (bool field in value)
-                            {
-                                if (consistent == false)
-                                    break;
-                                if (field == l.currentSolution[x.index])
-                                {
-                                    consistent = true;
-                                }
-                                else
-                                {
-                                    consistent = false;
-                                }
-                            }
+                            return false;
                         }
                     }
 
-                    if(consistent)
-                    {
-                        x.currentSolution = value;
-                        a.Add(x);
-                        backtrack(a, v);
-                        foreach(Line l in a.Where(n=> n.index == x.index))
-                        {
-                            l.possibleSolutions.Remove(value);
-                            break;
-                        }
-                    }
-                }
-                return false;
+               }
+                return true;
             }
-            bool success = backtrack(assignment, variables);
-            foreach(Line l in assignment)
+
+            bool backtrack(List<Line> vars, int level, List<Line> solution)
             {
-                List<bool> lb = l.currentSolution;
-                foreach(bool b in lb)
+                
+                if (level == vars.Count)
                 {
-                    if (b)
+                    return true;
+                }
+                int currentIndex = vars[level].index;
+             
+                Console.WriteLine("level " + level);
+                
+
+                for (int i = 0; i < vars[level].possibleSolutions.Count; i++)
+                {
+                    
+                    bool isValid = valid(vars[level].lineType, vars[level].index, vars[level].possibleSolutions[i], solution);
+                    
+
+                    if (!isValid)
+                        continue;
+                    
+                    solution.Add(vars[level]);
+                    solution[solution.Count - 1].currentSolution = vars[level].possibleSolutions[i];
+                    bool recursiveCall = backtrack(vars, ++level, solution);
+                    if(recursiveCall)
                     {
-                        Console.Write("#");
+                        return true;
                     }
                     else
+                    {
+
+                        solution.RemoveAll(item => item.index == currentIndex);
+
+                    }
+
+
+                }
+
+
+                return false;
+            }
+
+            backtrack(variables, 0, assignment);
+            foreach(Line l in variables)
+            {
+                Console.WriteLine(l.index);
+                Console.WriteLine(l.lineType);
+                foreach(bool b in l.currentSolution)
+                {
+                    if (b)
+                        Console.Write("#");
+                    else
+                    {
                         Console.Write("-");
+                    }
                 }
                 Console.WriteLine();
             }
-         
+
+
         }
 
 
